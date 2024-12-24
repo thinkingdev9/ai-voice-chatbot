@@ -1,34 +1,66 @@
 "use client";
 
-import React, {useState, useEffect} from "react";
-import Image from "next/image";
-import io from 'socket.io-client';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlay } from '@fortawesome/free-solid-svg-icons';
+import React, { useEffect, useState } from "react";
+import { open } from "@play-ai/web-embed";
 
-const socket = io('http://localhost:8000/');
-console.log(socket);
+export default function Page() {
+  const [text, setText] = useState("Change this text");
 
-export default function Home() {
+  const webEmbedId = "nHT4ADmXEW87Z5kxQEK0r";
+
   useEffect(() => {
-    socket.on('connect', () => {
-      console.log('Connected to server');
+    const events = [
+      {
+        name: "transcription",
+        when: "The user's speech is transcribed",
+        data: {
+          text: { type: "string", description: "The transcribed text" },
+        },
+      },
+      {
+        name: "ai-response",
+        when: "The AI responds to the user",
+        data: {
+          text: { type: "string", description: "The AI's response text" },
+        },
+      },
+      {
+        name: "ai-speaking",
+        when: "The AI starts or stops speaking",
+        data: {
+          speaking: { type: "boolean", description: "Whether the AI is speaking" },
+        },
+      },
+    ] as const;
+
+    const onEvent = (event: any) => {
+      switch (event.name) {
+        case "transcription":
+          setText(`You: ${event.data.text}`);
+          break;
+        case "ai-response":
+          setText(`AI: ${event.data.text}`);
+          break;
+        case "ai-speaking":
+          console.log("AI speaking:", event.data.speaking);
+          break;
+      }
+    };
+
+    open(webEmbedId, {
+      events,
+      onEvent,
     });
-  });
+  }, []);
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="cursor-pointer rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            rel="noopener noreferrer"
-          >
-            <FontAwesomeIcon icon={faPlay} width={25} />
-            Start now
-          </a>
+    <main className="min-h-screen p-4">
+      <div className="flex flex-col justify-center items-center h-[70vh] space-y-4">
+        <div className="font-medium text-2xl text-center max-w-2xl">{text}</div>
+        <div className="text-sm text-gray-500">
+          Speak to interact with the AI
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }
