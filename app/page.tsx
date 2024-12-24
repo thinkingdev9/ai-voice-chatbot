@@ -3,13 +3,24 @@
 import React, { useEffect, useState } from "react";
 import { open } from "@play-ai/web-embed";
 
+interface Event {
+  name: string;
+  when: string;
+  data: {
+    [key: string]: { type: string; description: string };
+  };
+}
+
 export default function Page() {
   const [text, setText] = useState("Change this text");
 
-  const webEmbedId = "nHT4ADmXEW87Z5kxQEK0r";
+  const webEmbedId = process.env.NEXT_PUBLIC_PLAY_AI_API_KEY;
+  if (!webEmbedId) {
+    throw new Error("AI_API_KEY is not set");
+  }
 
   useEffect(() => {
-    const events = [
+    const events: Array<Event> = [
       {
         name: "transcription",
         when: "The user's speech is transcribed",
@@ -33,7 +44,7 @@ export default function Page() {
       },
     ] as const;
 
-    const onEvent = (event: any) => {
+    const onEvent = (event: Event) => {
       switch (event.name) {
         case "transcription":
           setText(`You: ${event.data.text}`);
