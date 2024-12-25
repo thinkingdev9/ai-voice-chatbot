@@ -67,7 +67,7 @@ export default function Page() {
   return (
     <main className="min-h-screen p-4">
       <div className="flex flex-col justify-center items-center h-[70vh] space-y-4">
-        <div className="font-medium text-2xl text-center max-w-2xl">{text}</div>
+        <div className="font-medium text-2xl text-center max-w-2xl">AI Voice Chatbot For Appointment Scheduling</div>
         <div className="text-sm text-gray-500">
           Speak to interact with the AI
         </div>
